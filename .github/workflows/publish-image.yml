@@ -1,7 +1,6 @@
-name: Test workflow
+name: Docker image publish
 
-on:
-  workflow_dispatch:
+on: push
 
 jobs:
   build-test:
@@ -9,22 +8,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+
       - run: npm ci
       - run: npm run build
       - run: npm test
 
-  deploy:
+  publish:
     runs-on: ubuntu-latest
-
     needs: build-test
 
     steps:
       - uses: actions/checkout@v3
-      - uses: akhileshns/heroku-deploy@v3.12.12
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "joke-app-31231" #Must be unique in Heroku
-          heroku_email: "pro.antoine.lin@gmail.com"
+          username: tufengs
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: user/app:latest
