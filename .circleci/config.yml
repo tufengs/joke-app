@@ -13,7 +13,6 @@ workflows:
               only:
                 - main
       - node/test:
-          test-result-for: jest
           filters:
             branches:
               only:
