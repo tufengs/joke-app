@@ -13,8 +13,8 @@ jobs:
 workflows:
   build:
     jobs:
-      -build-test:
-        filters:
-          branchs:
-            only:
-              - circleci
+      - build-test:
+          filters:
+            branches:
+              only:
+                - main
