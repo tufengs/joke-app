@@ -3,6 +3,25 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.2
   heroku: circleci/heroku@1.2.6
+  docker: circleci/docker@2.1.3
+
+jobs:
+  build:
+    machine:
+      image: ubuntu-2204:2022.04.2
+    steps:
+      - checkout
+      # start proprietary DB using private Docker image
+      # with credentials stored in the UI
+      - run: |
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+          docker run -d --name db company/proprietary-db:1.2.3
+
+      # build the application image
+      - run: docker build -t $DOCKER_LOGIN/joke-api:$CIRCLE_BRANCH .
+
+      # deploy the image
+      - run: docker push $DOCKER_LOGIN/joke-api:$CIRCLE_BRANC
 
 workflows:
   build:
@@ -29,3 +48,12 @@ workflows:
             branches:
               only:
                 - main
+      - docker/publish:
+          image: tufengs/joke-app:latest
+          requires:
+            - node/run
+            - node/test
+          filters:
+            branches:
+              only:
+                -main
