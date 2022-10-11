@@ -4,7 +4,10 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                sh "echo 'build'"
+                sh "npm install -g pnpm"
+                sh "pnpm install"
+                sh "pnpm build"
+                sh "pnpm test"
             }
         }
     }
